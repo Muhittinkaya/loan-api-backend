@@ -42,7 +42,7 @@ Follow the steps below to run the project on your local machine.
 1- Clone the Project:
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/Muhittinkaya/loan-api-backend.git
 cd LoanAPIBackend
 ```
 
