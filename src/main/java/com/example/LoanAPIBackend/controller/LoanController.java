@@ -24,7 +24,7 @@ public class LoanController {
     private final PaymentService paymentService;
 
     @PostMapping("/createLoan")
-    @PreAuthorize("hasAnyRole('CUSTOMER')")
+    @PreAuthorize("hasAnyRole('ROLE_CUSTOMER')")
     public ResponseEntity<LoanResponse> createLoan(@Valid @RequestBody CreateUserLoanRequest createLoanRequest
             , Authentication authentication) {
         LoanResponse loanResponse = loanService.createLoanbyUser(createLoanRequest,authentication);
@@ -32,18 +32,15 @@ public class LoanController {
     }
     @PostMapping("/createLoanByAdmin")
     @PreAuthorize("hasAnyRole('ADMIN')")
-    public ResponseEntity<LoanResponse> createLoanByAdmin(@Valid @RequestBody CreateLoanRequest createLoanRequest
-            , Authentication authentication) {
-        LoanResponse loanResponse = loanService.createLoanWithCustomerbyAdmin(createLoanRequest,authentication);
+    public ResponseEntity<LoanResponse> createLoanByAdmin(@Valid @RequestBody CreateLoanRequest createLoanRequest) {
+        LoanResponse loanResponse = loanService.createLoanWithCustomerbyAdmin(createLoanRequest);
         return new ResponseEntity<>(loanResponse, HttpStatus.CREATED);
     }
     @GetMapping("/listLoans")
     @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
     public ResponseEntity<List<LoanResponse>> listLoans(
             @RequestParam(required = false) Long customerId,
-            @RequestParam(required = false) Integer numberOfInstallments,
-            @RequestParam(required = false) Boolean isPaid,
-            Authentication authentication) { // Spring Security provides the authentication object
+            Authentication authentication) {
 
         List<LoanResponse> loans = loanService.getLoans(
                 Optional.ofNullable(customerId),

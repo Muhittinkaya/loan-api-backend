@@ -47,7 +47,6 @@ public class Loan {
         if (loanAmount == null || interestRate == null) {
             return BigDecimal.ZERO;
         }
-        // Total Amount = Principal * (1 + Interest Rate)
         return loanAmount.multiply(BigDecimal.ONE.add(interestRate)).setScale(2, RoundingMode.HALF_UP);
     }
 

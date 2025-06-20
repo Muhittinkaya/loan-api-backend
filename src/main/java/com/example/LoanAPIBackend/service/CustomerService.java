@@ -15,7 +15,6 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
-    @Transactional(readOnly = true)
     public Customer getCustomerById(Long customerId) {
         return customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + customerId));

@@ -4,10 +4,10 @@
 INSERT INTO customers (id, name, surname, credit_limit, used_credit_limit) VALUES
 (1, 'John', 'Doe', 10000.00, 0.00),
 (2, 'Jane', 'Smith', 15000.00, 0.00),
-(3, 'Alice', 'Johnson', 12000.00, 1500.00),
-(4, 'Robert', 'Brown', 8000.00, 500.00),
+(3, 'Alice', 'Johnson', 12000.00, 0.00),
+(4, 'Robert', 'Brown', 8000.00, 0.00),
 (5, 'Emily', 'Davis', 20000.00, 0.00),
-(6, 'Michael', 'Wilson', 17500.00, 3000.00),
+(6, 'Michael', 'Wilson', 17500.00, 0.00),
 (7, 'Sarah', 'Miller', 9500.00, 0.00);
 
 -- Users (Passwords MUST be BCRYPT HASHED)

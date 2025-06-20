@@ -39,7 +39,7 @@ public class LoanService {
     private final UserRepository userRepository;
 
     @Transactional
-    public LoanResponse createLoanWithCustomerbyAdmin(CreateLoanRequest request, Authentication authentication) {
+    public LoanResponse createLoanWithCustomerbyAdmin(CreateLoanRequest request) {
         if (!AllowedInstallmentCounts.isValid(request.getNumberOfInstallments())) {
             throw new ValidationException("Number of installments can only be 6, 9, 12, or 24.");
         }
@@ -51,12 +51,12 @@ public class LoanService {
 
         Customer customer = customerService.getCustomerById(request.getCustomerId());
 
-        Loan savedLoan = createLoan(customer,request.getAmount(),request.getInterestRate(),request.getNumberOfInstallments());
+        Loan savedLoan = createLoan(customer, request.getAmount(), request.getInterestRate(), request.getNumberOfInstallments());
         return mapToLoanResponse(savedLoan, true);
     }
 
 
-    private Loan createLoan(Customer customer,BigDecimal amount, BigDecimal interestRate , Integer numberOfInstallments ){
+    private Loan createLoan(Customer customer, BigDecimal amount, BigDecimal interestRate, Integer numberOfInstallments) {
         BigDecimal availableCredit = customer.getCreditLimit().subtract(customer.getUsedCreditLimit());
         if (availableCredit.compareTo(amount) < 0) {
             throw new InsufficientCreditException(
@@ -64,7 +64,7 @@ public class LoanService {
                             ", Requested: " + amount);
         }
 
-        Loan loan= new Loan();
+        Loan loan = new Loan();
         loan.setCustomer(customer);
         loan.setLoanAmount(amount);
         loan.setInterestRate(interestRate);
@@ -82,7 +82,7 @@ public class LoanService {
             installment.setPaid(false);
             loan.addInstallment(installment);
         }
-         customerService.updateUsedCreditLimit(customer, amount);
+        customerService.updateUsedCreditLimit(customer, amount);
         Loan savedLoan = loanRepository.save(loan);
         return savedLoan;
     }
@@ -93,9 +93,11 @@ public class LoanService {
         User authenticatedUser = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found."));
 
-        if (authenticatedUser.getRole() == Role.ROLE_CUSTOMER) {
-            if (authenticatedUser.getCustomer() == null) {
-                throw new AccessDeniedException("Customer user is not associated with a customer record.");
+        if (authenticatedUser.getRole() != Role.ROLE_CUSTOMER) {
+            throw new AccessDeniedException("Only users with ROLE_CUSTOMER can create loans.");
+        }
+        if (authenticatedUser.getCustomer() == null) {
+            throw new AccessDeniedException("Customer user is not associated with a customer record.");
         }
 
         if (!AllowedInstallmentCounts.isValid(request.getNumberOfInstallments())) {
@@ -109,11 +111,9 @@ public class LoanService {
 
         Customer customer = customerService.getCustomerById(authenticatedUser.getCustomer().getId());
 
-         Loan savedLoan = createLoan(customer,request.getAmount(),request.getInterestRate(),request.getNumberOfInstallments());
-            return mapToLoanResponse(savedLoan, true);
-        }
+        Loan savedLoan = createLoan(customer, request.getAmount(), request.getInterestRate(), request.getNumberOfInstallments());
+        return mapToLoanResponse(savedLoan, true);
 
-        return LoanResponse.builder().build();
     }
 
     @Transactional(readOnly = true)
@@ -123,8 +123,8 @@ public class LoanService {
         User authenticatedUser = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResourceNotFoundException("Authenticated user not found."));
 
-        List<Loan> list=null;
-        Predicate<Loan> filteredListLoans = null ;
+        List<Loan> list = null;
+        Predicate<Loan> filteredListLoans = null;
 
         if (authenticatedUser.getRole() == Role.ROLE_CUSTOMER) {
             if (authenticatedUser.getCustomer() == null) {
@@ -136,10 +136,10 @@ public class LoanService {
 
             filteredListLoans = loan -> authenticatedUser.getCustomer().getId().equals(loan.getCustomer().getId());
 
-            list=loanRepository.findAll().stream().filter(filteredListLoans).toList();
+            list = loanRepository.findAll().stream().filter(filteredListLoans).toList();
 
         } else if (authenticatedUser.getRole() == Role.ROLE_ADMIN) {
-            list=loanRepository.findAll();
+            list = loanRepository.findAll();
 
         }
 
