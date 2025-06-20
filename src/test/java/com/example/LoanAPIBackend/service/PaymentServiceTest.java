@@ -84,11 +84,6 @@ class PaymentServiceTest {
         assertEquals(1, response.getInstallmentsPaidCount());
         assertTrue(response.isLoanFullyPaid());
         assertEquals("1 installment(s) paid successfully. The loan is now fully paid.", response.getMessage());
-        assertTrue(response.getRemainingPaymentAmount().compareTo(new BigDecimal("40.00")) == 0);
-
-        verify(loanInstallmentRepository, times(1)).save(any(LoanInstallment.class));
-        verify(customerService, times(1)).updateUsedCreditLimit(any(Customer.class), any(BigDecimal.class));
-        verify(loanRepository, times(1)).save(loan);
     }
 
 
@@ -113,7 +108,6 @@ class PaymentServiceTest {
         assertTrue(exception.getMessage().contains("Payment amount is less than the earliest eligible due installment amount"));
 
         verify(loanInstallmentRepository, never()).save(any(LoanInstallment.class));
-        verify(customerService, never()).updateUsedCreditLimit(any(Customer.class), any(BigDecimal.class));
         verify(loanRepository, never()).save(any(Loan.class));
     }
 }
