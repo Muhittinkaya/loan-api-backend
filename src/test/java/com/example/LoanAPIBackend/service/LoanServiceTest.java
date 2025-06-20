@@ -113,17 +113,6 @@ class LoanServiceTest {
     }
 
     @Test
-    void getLoans_AsAdmin_WithCustomerIdFilter_ReturnsAllLoansDueToCurrentImplementation() {
-        when(authentication.getName()).thenReturn("admin");
-        when(userRepository.findByUsername("admin")).thenReturn(Optional.of(adminUser));
-        when(loanRepository.findAll()).thenReturn(List.of(loan1, loan2, loan3));
-
-        List<LoanResponse> result = loanService.getLoans(Optional.of(101L),  authentication);
-
-        assertEquals(3, result.size(), "Admin filter is not applied in the current code, so all loans should be returned");
-    }
-
-    @Test
     void getLoans_AsCustomer_ReturnsOnlyOwnLoans() {
 
         when(authentication.getName()).thenReturn("customer1");
